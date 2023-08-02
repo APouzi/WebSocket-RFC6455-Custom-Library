@@ -103,4 +103,16 @@ func(wsc *WebSocketContainer) ReceiveFrameStart() *Frame{
 	return &frame
 }
 
+func (wsc *WebSocketContainer) ReadFramePayloadStart(frame *Frame)  (*Frame,bool){
+	data := make([]byte, 2)
+	_,err := wsc.buffRW.Read(data)
+	frame.Mask = data[0] & 0x80
+	frame.PayloadLength = data[0] & 0x7F
+	fmt.Println("MASK: ",int32(frame.Mask))
+	fmt.Println("PayLoad Length: ",int32(frame.PayloadLength))
+	if err != nil{
+		fmt.Println("reading error")
+	}
+	// data.
+	return frame, false
 }
