@@ -85,4 +85,22 @@ type Frame struct{
 	Mask byte
 	PayloadLength byte
 }
+func(wsc *WebSocketContainer) ReceiveFrameStart() *Frame{
+	data := make([]byte, 1)
+	_, err := wsc.buffRW.Read(data)
+	if err != nil{
+		fmt.Println("reading error")
+	}
+	
+	frame := Frame{}
+	frame.FIN = data[0] & 0x80
+	frame.Opcode = data[0] & 0x0F
+	
+	fmt.Println("data frame ",int32(data[0]))
+	fmt.Println("opcode: ",int32(frame.Opcode))
+	fmt.Println("FIN: ",int32(frame.FIN))
+	
+	return &frame
+}
+
 }
