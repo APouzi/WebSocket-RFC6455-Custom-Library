@@ -4,8 +4,11 @@ import (
 	"bufio"
 	"crypto/sha1"
 	"encoding/base64"
+	"encoding/binary"
 	"fmt"
 	"hash"
+	"io"
+	"log"
 	"net"
 	"net/http"
 	"strings"
@@ -64,14 +67,16 @@ func(wsc *WebSocketContainer) WebSocketLoop(){
 		if frame.Opcode == 0x08{
 			fmt.Println("closed connection")
 			wsc.tcpConn.Close() // maybe defer this
-			break
+			return
 		}
 		if frame.Opcode == 1{
 			frame, _ = wsc.ReadFramePayloadStart(frame)
+			wsc.ReadPayloadWithMask(frame)
 			fmt.Println("frame opcode is text")
 		}
 		if frame.Opcode == 2{
 			fmt.Println("frame opcode is binary")
+			frame, _ = wsc.ReadFramePayloadStart(frame)
 		}
 		
 		
@@ -83,7 +88,8 @@ type Frame struct{
 	FIN byte
 	Opcode byte
 	Mask byte
-	PayloadLength byte
+	MaskPayLoad []byte
+	PayloadLength uint64
 }
 func(wsc *WebSocketContainer) ReceiveFrameStart() *Frame{
 	data := make([]byte, 1)
@@ -104,15 +110,25 @@ func(wsc *WebSocketContainer) ReceiveFrameStart() *Frame{
 }
 
 func (wsc *WebSocketContainer) ReadFramePayloadStart(frame *Frame)  (*Frame,bool){
-	data := make([]byte, 2)
+	data := make([]byte, 1)
 	_,err := wsc.buffRW.Read(data)
 	frame.Mask = data[0] & 0x80
-	frame.PayloadLength = data[0] & 0x7F
+	payloadLength := uint64(data[0] & 0x7F)
 	fmt.Println("MASK: ",int32(frame.Mask))
-	fmt.Println("PayLoad Length: ",int32(frame.PayloadLength))
+	
 	if err != nil{
 		fmt.Println("reading error")
 	}
 	// data.
 	return frame, false
-}
+
+// dataRead := 0
+	// for {
+	// 	fmt.Println("read in loop:", dataRead)
+	// 	if dataRead == int(frame.PayloadLength){
+	// 		break
+	// 	}
+		
+	// 	dataRead+=n
+		
+	// }
