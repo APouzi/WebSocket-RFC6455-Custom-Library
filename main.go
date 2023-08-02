@@ -79,4 +79,10 @@ func(wsc *WebSocketContainer) WebSocketLoop(){
 		fmt.Println("loop iteration done")
 	}
 }
+type Frame struct{
+	FIN byte
+	Opcode byte
+	Mask byte
+	PayloadLength byte
+}
 }
