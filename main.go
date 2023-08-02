@@ -54,13 +54,9 @@ func(wsc *WebSocketContainer) WebSocketUpgrader(w http.ResponseWriter, r *http.R
 	strbdr.WriteString("")
 	fmt.Println(strbdr.String())
 	wsc.tcpConn.Write([]byte(strbdr.String()))
-}
 
-// func(wsc *WebSocketContainer) WebSocketLoop(w http.ResponseWriter, r *http.Request){
-// 	for{
-// 		ReceiveFrame()
-// 	}
-// }
+	wsc.WebSocketLoop()
+}
 
 func(wsc *WebSocketContainer) ReceiveFrame(w http.ResponseWriter, r *http.Request) {
 	
