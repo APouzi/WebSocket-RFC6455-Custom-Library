@@ -58,6 +58,25 @@ func(wsc *WebSocketContainer) WebSocketUpgrader(w http.ResponseWriter, r *http.R
 	wsc.WebSocketLoop()
 }
 
-func(wsc *WebSocketContainer) ReceiveFrame(w http.ResponseWriter, r *http.Request) {
+func(wsc *WebSocketContainer) WebSocketLoop(){
+	for{
+		frame := wsc.ReceiveFrameStart()
+		if frame.Opcode == 0x08{
+			fmt.Println("closed connection")
+			wsc.tcpConn.Close() // maybe defer this
+			break
+		}
+		if frame.Opcode == 1{
+			frame, _ = wsc.ReadFramePayloadStart(frame)
+			fmt.Println("frame opcode is text")
+		}
+		if frame.Opcode == 2{
+			fmt.Println("frame opcode is binary")
+		}
+		
+		
 	
+		fmt.Println("loop iteration done")
+	}
+}
 }
