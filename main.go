@@ -143,7 +143,6 @@ func (wsc *WebSocketContainer) ReadFramePayloadStart(frame *Frame)  (*Frame,bool
 	if err != nil{
 		fmt.Println("reading error")
 	}
-	// data.
 	return frame, false
 }
 
@@ -160,8 +159,13 @@ func (wsc *WebSocketContainer) ReadPayloadWithMask(frame *Frame){
 		}
 	}
 
+	payload = MaskOrUnMask(payload,frame.PayloadLength,frame.MaskPayLoad)
+	// for i := uint64(0); i < frame.PayloadLength; i++{
+	// 	payload[i] ^= frame.MaskPayLoad[i%4]
+	// }
 	
 	
+	fmt.Println("payload: ",string(payload))
 }
 
 func MaskOrUnMask(payload []byte, length uint64,mask []byte) []byte{
