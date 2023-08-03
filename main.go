@@ -114,6 +114,12 @@ func (wsc *WebSocketContainer) ReadFramePayloadStart(frame *Frame)  (*Frame,bool
 	_,err := wsc.buffRW.Read(data)
 	frame.Mask = data[0] & 0x80
 	payloadLength := uint64(data[0] & 0x7F)
+	fmt.Println(payloadLength)
+	if payloadLength < 126{
+		fmt.Println("Payload length is less than 126")
+		frame.PayloadLength = payloadLength
+		fmt.Println("PayLoad Length: ",int32(frame.PayloadLength))
+	}
 	fmt.Println("MASK: ",int32(frame.Mask))
 	
 	if err != nil{
