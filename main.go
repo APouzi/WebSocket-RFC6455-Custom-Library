@@ -121,6 +121,25 @@ func (wsc *WebSocketContainer) ReadFramePayloadStart(frame *Frame)  (*Frame,bool
 	}
 	// data.
 	return frame, false
+}
+
+func (wsc *WebSocketContainer) ReadPayloadWithMask(frame *Frame){
+	payload := make([]byte, frame.PayloadLength)
+	// n, _ := wsc.buffRW.Read(payload)
+	
+	
+	n, err := io.ReadFull(wsc.buffRW, payload)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for i := uint64(0); i < frame.PayloadLength; i++{
+		payload[i] ^= frame.MaskPayLoad[i%4]
+	}
+	
+	
+	fmt.Println("payload: ",string(payload),"payload read: ",n,"payload length:",len(payload))
+}
 
 // dataRead := 0
 	// for {
