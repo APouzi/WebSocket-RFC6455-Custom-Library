@@ -120,6 +120,16 @@ func (wsc *WebSocketContainer) ReadFramePayloadStart(frame *Frame)  (*Frame,bool
 		frame.PayloadLength = payloadLength
 		fmt.Println("PayLoad Length: ",int32(frame.PayloadLength))
 	}
+	if payloadLength == 126{
+		fmt.Println("Payload length is 126")
+		getPayloadLength := make([]byte, 2)
+		_, err := io.ReadFull(wsc.buffRW, getPayloadLength)
+		// _, err := wsc.buffRW.Read(getPayloadLength)
+		if err != nil{
+			fmt.Println("error reading payloadlength")
+		}
+		frame.PayloadLength = uint64(binary.BigEndian.Uint16(getPayloadLength))
+	}
 	fmt.Println("MASK: ",int32(frame.Mask))
 	
 	if err != nil{
