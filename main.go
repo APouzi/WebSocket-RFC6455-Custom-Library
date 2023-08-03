@@ -114,14 +114,10 @@ func (wsc *WebSocketContainer) ReadFramePayloadStart(frame *Frame)  (*Frame,bool
 	_,err := wsc.buffRW.Read(data)
 	frame.Mask = data[0] & 0x80
 	payloadLength := uint64(data[0] & 0x7F)
-	fmt.Println(payloadLength)
 	if payloadLength < 126{
-		fmt.Println("Payload length is less than 126")
 		frame.PayloadLength = payloadLength
-		fmt.Println("PayLoad Length: ",int32(frame.PayloadLength))
 	}
 	if payloadLength == 126{
-		fmt.Println("Payload length is 126")
 		getPayloadLength := make([]byte, 2)
 		_, err := io.ReadFull(wsc.buffRW, getPayloadLength)
 		// _, err := wsc.buffRW.Read(getPayloadLength)
@@ -131,7 +127,6 @@ func (wsc *WebSocketContainer) ReadFramePayloadStart(frame *Frame)  (*Frame,bool
 		frame.PayloadLength = uint64(binary.BigEndian.Uint16(getPayloadLength))
 	}
 	if payloadLength == 127{
-		fmt.Println("Payload length is 127")
 		getPayloadLength := make([]byte, 8)
 		_, err := wsc.buffRW.Read(getPayloadLength)
 		if err != nil{
@@ -141,15 +136,12 @@ func (wsc *WebSocketContainer) ReadFramePayloadStart(frame *Frame)  (*Frame,bool
 	}
 	mask := make([]byte,4)
 	if frame.Mask != 0x00{
-		n, err := wsc.buffRW.Read(mask)
+		_, err := wsc.buffRW.Read(mask)
 		if err != nil{
 			fmt.Println("error reading mask")
 		}
-		fmt.Println("read this amount of MASK: ", n)
 	}
-	frame.MaskPayLoad = mask
-	fmt.Println("MASK: ",int32(frame.Mask))
-	
+	frame.MaskPayLoad = mask	
 	if err != nil{
 		fmt.Println("reading error")
 	}
