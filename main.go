@@ -8,7 +8,6 @@ import (
 	"fmt"
 	"hash"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	"strings"
@@ -120,7 +119,6 @@ func (wsc *WebSocketContainer) ReadFramePayloadStart(frame *Frame)  (*Frame,bool
 	if payloadLength == 126{
 		getPayloadLength := make([]byte, 2)
 		_, err := io.ReadFull(wsc.buffRW, getPayloadLength)
-		// _, err := wsc.buffRW.Read(getPayloadLength)
 		if err != nil{
 			fmt.Println("error reading payloadlength")
 		}
@@ -128,7 +126,7 @@ func (wsc *WebSocketContainer) ReadFramePayloadStart(frame *Frame)  (*Frame,bool
 	}
 	if payloadLength == 127{
 		getPayloadLength := make([]byte, 8)
-		_, err := wsc.buffRW.Read(getPayloadLength)
+		_, err := io.ReadFull(wsc.buffRW, getPayloadLength)
 		if err != nil{
 			fmt.Println("error reading payloadlength")
 		}
