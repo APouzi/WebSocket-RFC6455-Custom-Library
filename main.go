@@ -139,6 +139,15 @@ func (wsc *WebSocketContainer) ReadFramePayloadStart(frame *Frame)  (*Frame,bool
 		}
 		frame.PayloadLength = uint64(binary.BigEndian.Uint64(getPayloadLength))
 	}
+	mask := make([]byte,4)
+	if frame.Mask != 0x00{
+		n, err := wsc.buffRW.Read(mask)
+		if err != nil{
+			fmt.Println("error reading mask")
+		}
+		fmt.Println("read this amount of MASK: ", n)
+	}
+	frame.MaskPayLoad = mask
 	fmt.Println("MASK: ",int32(frame.Mask))
 	
 	if err != nil{
