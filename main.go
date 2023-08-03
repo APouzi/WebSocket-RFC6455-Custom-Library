@@ -72,6 +72,8 @@ func(wsc *WebSocketContainer) WebSocketLoop(){
 			frame, _ = wsc.ReadFramePayloadStart(frame)
 			wsc.ReadPayloadWithMask(frame)
 			fmt.Println("frame opcode is text")
+			// We are just inserting here a message send off regarding 
+			SendDataFrameCanned(*frame,wsc.buffRW)
 		}
 		if frame.Opcode == 2{
 			fmt.Println("frame opcode is binary")
@@ -174,4 +176,25 @@ func MaskOrUnMask(payload []byte, length uint64,mask []byte) []byte{
 		payload[i] ^= mask[i%4]
 	}
 	return payload
+}
+
+
+func SendDataFrameCanned(frame Frame, buffwr *bufio.ReadWriter){
+	sendFrame := Frame{}
+	sendFrame.FIN = frame.FIN
+	sendFrame.Mask = 0x00
+	sendFrame.PayloadLength = 0x28
+	sendFrame.Opcode = frame.Opcode
+	sendOff := "Message was successfully received! Cool!"
+	data := []byte{}
+	// data = append(data, sendFrame.FIN)
+	// data = append(data, sendFrame.Mask)
+	// data = append(data, sendFrame.Opcode)
+	data = append(data, byte(sendFrame.PayloadLength))
+	for _, v := range sendOff{
+		data = append(data, byte(v))
+	}
+	
+	buffwr.Write(data)
+	
 }
