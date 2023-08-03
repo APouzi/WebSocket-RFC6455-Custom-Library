@@ -149,29 +149,25 @@ func (wsc *WebSocketContainer) ReadFramePayloadStart(frame *Frame)  (*Frame,bool
 
 func (wsc *WebSocketContainer) ReadPayloadWithMask(frame *Frame){
 	payload := make([]byte, frame.PayloadLength)
-	// n, _ := wsc.buffRW.Read(payload)
 	
-	
-	n, err := io.ReadFull(wsc.buffRW, payload)
-	if err != nil {
-		log.Fatal(err)
+	dataRead := 0
+	for {
+		fmt.Println("read in loop:", dataRead)
+		n, _ := wsc.buffRW.Read(payload)
+		dataRead+=n
+		if dataRead == int(frame.PayloadLength){
+			break
+		}
 	}
 
-	for i := uint64(0); i < frame.PayloadLength; i++{
-		payload[i] ^= frame.MaskPayLoad[i%4]
-	}
 	
 	
-	fmt.Println("payload: ",string(payload),"payload read: ",n,"payload length:",len(payload))
 }
 
-// dataRead := 0
-	// for {
-	// 	fmt.Println("read in loop:", dataRead)
-	// 	if dataRead == int(frame.PayloadLength){
-	// 		break
-	// 	}
-		
-	// 	dataRead+=n
-		
-	// }
+func MaskOrUnMask(payload []byte, length uint64,mask []byte) []byte{
+	var i uint64
+	for i = 0; i < length; i++{
+		payload[i] ^= mask[i%4]
+	}
+	return payload
+}
